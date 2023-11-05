@@ -1,30 +1,31 @@
+
 import axios from "axios";
 
-export default async function gettingGalery(searchQuery, page) {
+export default async function fetchImgs(searchQuery, page) {
     const BASE_API_URL = 'https://pixabay.com/api/';
-    const API_KEY = '40450680-17c279c7abde5535240169683';
-
+    const API_KEY = '40450680-17c279c7abde5535240169683';        
+         
     const params = new URLSearchParams({
         key: API_KEY,
         q: searchQuery,
         image_type: 'photo',
-        orientation: horizontal,
+        orientation: 'horizontal',
         safesearch: true,
         per_page: 40,
-        page
+        page,
     });
-
+      
     return await axios.get(`${BASE_API_URL}`, {
         params,
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
         }
     })
         .then(resp => {
             console.log('Fetch data: ', resp);
-            if (!resp.ok) {
-                throw new Error(resp.statusText);
+            if (!resp.status) {
+                throw new Error(resp.status || resp.statusText);
             }
-            return resp.data
-    })
-}
+            return resp.data;                                             
+        });
+};           

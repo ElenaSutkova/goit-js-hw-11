@@ -1,6 +1,9 @@
-import searchImg from "./searchImg";
+
+
+
+import fetchImgs from "./searchImg";
+import galleryImgsTpl from '../templates/gallery.hbs';
 import { Notify } from 'notiflix/build/notiflix-notify-aio.js';
-// import galleryImgsTpl from '../templates/gallery.hbs';
 
 Notify.init({
     width: '300px',
@@ -8,16 +11,16 @@ Notify.init({
     fontSize: '16px',    
 });
 
-const container = {
-    receivingForm: document.querySelector('.search-form'),
-    receivingInput: document.querySelector('.search-input'),
-    galleryImg: document.querySelector('.gallery'),
-    loadMore: document.querySelector('.load-more')
+const Refs = {
+    searchForm: document.querySelector('.search-form'),
+    searchInput: document.querySelector('.search-input'),
+    imgsGallery: document.querySelector('.gallery'),
+    loadMoreBtn: document.querySelector('.load-more')
 }
 
-container.receivingForm.addEventListener('submit', onReceivingForm);
-container.loadMore.addEventListener('click', onLoadMore);
-container.loadMore.style.display = 'none';
+Refs.searchForm.addEventListener('submit', onSearchForm);
+Refs.loadMoreBtn.addEventListener('click', onLoadMore);
+Refs.loadMoreBtn.style.display = 'none';
 
 let searchQuery;
 let currentQuery;
@@ -25,73 +28,74 @@ let page;
 let currentPage;
 const perPage = 40;
 
-async function onReceivingForm(e) {
-    e.preventDefault();
+async function onSearchForm(e) {
+    e.preventDefault();    
     searchQuery = e.currentTarget.elements.searchQuery.value.trim();
-    if (currentTarget === searchQuery) {
+     if (currentQuery === searchQuery) {          
         Notify.warning("Error! You are already searching for this keyword");
-        container.receivingInput.value = '';
+        Refs.searchInput.value = '';
         return;
-    };
-    if (searchQuery === '') {
-        Notify.warning("Error! You are already searching for this keyword");
-        container.receivingInput.value = '';
+    }; 
+     if (searchQuery === '') {
+        Notify.warning("Error! You must specify a keyword to search for.");
+        Refs.searchInput.value = '';
         return;
     };
     try {
         page = 1;
         console.log(`searchQuery: ${searchQuery}, page before fetch: ${page}`);
-        let data = await searchImg(searchQuery, page);
+        let data = await fetchImgs(searchQuery, page);
         console.log('Hits: ', data.hits);
         if (data.hits && data.hits.length > 0) {
             Notify.success(`Hooray! We found ${data.totalHits} images.`)
-            container.receivingInput.value = '';
-            container.galleryImg.innerHTML = '';
-            galleryImgMarcup(data.hits);
+            Refs.searchInput.value = '';
+            Refs.imgsGallery.innerHTML = '';            
+            galleryImgsMarckup(data.hits);
             page++;
             currentPage = page;
-            container.loadMore.style.display = 'block';
+            Refs.loadMoreBtn.style.display = 'block';
             currentQuery = searchQuery;
-            console.log(`searchQuery: ${searchQuery}, page after fetch: {page}`);
+            console.log(`searchQuery: ${searchQuery}, page after fetch: ${page}`);
         } else {
             Notify.failure("Sorry, there are no images matching your search query. Please try again");
-            container.receivingInput.value = '';
+            Refs.searchInput.value = '';
             searchQuery = currentQuery;
             page = currentPage;
         }
     } catch (error) {
-        console.error(error.message);
-    }
+        console.error(error.message);   
+        } 
 };
 
-async function onLoadMore(e) {
+async function onLoadMore(e) {    
     try {
         console.log(`searchQuery: ${searchQuery}, page before fetch: ${page}`);
-        let data = await searchImg(searchQuery, page);
+        let data = await fetchImgs(searchQuery, page);
         console.log('Hits: ', data.hits);
         if (data.hits && data.hits.length > 0) {
-            container.receivingInput.value = '';
-            galleryImgMarcup(data.hits);
+            Refs.searchInput.value = '';            
+            galleryImgsMarckup(data.hits);
 
             if (perPage * page >= data.totalHits) {
                 Notify.failure("We're sorry, but you've reached the end of search results.");
-                container.loadMore.style.display = 'none';
+                Refs.loadMoreBtn.style.display = 'none';
                 return;
             }
+
             page++;
             currentPage = page;
-            container.loadMore.style.display = 'block';
+            Refs.loadMoreBtn.style.display = 'block';
             currentQuery = searchQuery;
             console.log(`searchQuery: ${searchQuery}, page after fetch: ${page}`);
         } else {
             Notify.failure("No more results.");
-            container.loadMore.style.display = 'none';
+            Refs.loadMoreBtn.style.display = 'none';
         }
     } catch (error) {
-        console.error(error.message)
-    }
+        console.error(error.message);   
+        } 
 }
 
-function galleryImgMarcup(hits) {
-    container.galleryImg.insertAdjacentHTML('beforeend', galleryImgsTpl )
+function galleryImgsMarckup(hits) {
+    Refs.imgsGallery.insertAdjacentHTML('beforeend', galleryImgsTpl(hits));
 }
