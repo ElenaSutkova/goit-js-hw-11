@@ -1,6 +1,3 @@
-
-
-
 import fetchImgs from "./searchImg";
 import galleryImgsTpl from '../templates/gallery.hbs';
 import { Notify } from 'notiflix/build/notiflix-notify-aio.js';
