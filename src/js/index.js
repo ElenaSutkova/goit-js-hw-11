@@ -55,9 +55,13 @@ async function onSearchForm(e) {
             currentQuery = searchQuery;
             console.log(`searchQuery: ${searchQuery}, page after fetch: ${page}`);
         }
+        if (data.hits.length === 0) {
+            Refs.imgsGallery.innerHTML=""
+        }
         if (data.totalHits < perPage) {
         Notify.failure("We're sorry, but you've reached the end of search results.");
-        Refs.loadMoreBtn.style.display = 'none';
+            Refs.loadMoreBtn.style.display = 'none';
+           
         return;
     }
         else {
