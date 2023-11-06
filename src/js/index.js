@@ -38,6 +38,11 @@ async function onSearchForm(e) {
         Refs.searchInput.value = '';
         return;
     };
+    if (searchQuery < perPage) {
+        Notify.failure("We're sorry, but you've reached the end of search results.");
+        Refs.loadMoreBtn.style.display = 'none';
+        return;
+    }
     try {
         page = 1;
         console.log(`searchQuery: ${searchQuery}, page before fetch: ${page}`);
